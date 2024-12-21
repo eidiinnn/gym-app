@@ -1,23 +1,27 @@
 import * as React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Home from "../pages/home";
-import Icon from "react-native-vector-icons/FontAwesome";
+import Icon from "react-native-vector-icons/FontAwesome6";
 import { useTheme } from "react-native-paper";
+import Measurement from "../pages/measurement";
 
 const TabRouter = createBottomTabNavigator({
   screens: {
     Home: Home,
+    Measurement: Measurement,
   },
 });
 
 export default function Router() {
   const theme = useTheme();
+  const iconSize = 25;
 
   return (
     <TabRouter.Navigator
       screenOptions={{
         headerShown: false,
         headerTintColor: theme.colors.background,
+        tabBarActiveTintColor: theme.colors.primary,
       }}
     >
       <TabRouter.Screen
@@ -26,7 +30,26 @@ export default function Router() {
         component={Home}
         options={{
           tabBarIcon: () => (
-            <Icon name="home" color={theme.colors.onBackground} size={30} />
+            <Icon
+              name="house"
+              color={theme.colors.onBackground}
+              size={iconSize}
+            />
+          ),
+        }}
+      />
+
+      <TabRouter.Screen
+        key="Measurement"
+        name="Measurement"
+        component={Measurement}
+        options={{
+          tabBarIcon: () => (
+            <Icon
+              name="ruler"
+              color={theme.colors.onBackground}
+              size={iconSize}
+            />
           ),
         }}
       />
