@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Training, Weekdays } from "../types";
 import { RootState } from ".";
 
@@ -6,37 +6,40 @@ export const calendarStore = createSlice({
   name: "calendar",
   initialState: {
     trainingList: [
-      { name: "a", weekday: Weekdays.Monday },
-      { name: "b", weekday: Weekdays.Wednesday },
-      { name: "c", weekday: Weekdays.Friday },
+      { id: "1", name: "a", weekday: Weekdays.Monday },
+      { id: "2", name: "b", weekday: Weekdays.Wednesday },
+      { id: "3", name: "c", weekday: Weekdays.Friday },
     ] as Array<Training>,
   },
-  reducers: {},
+  reducers: {
+    removeTraining(state, actions: PayloadAction<string>) {
+      const index = state.trainingList.findIndex(
+        (training) => training.id === actions.payload
+      );
+      state.trainingList.splice(index, 1);
+    },
+  },
 });
 
-export const selectUser = (state: RootState) => {
-  const trainingList = state.calendar.trainingList;
-  const weekdaysList: { [key in Weekdays]: Array<Training> } = {
-    [Weekdays.Monday]: [],
-    [Weekdays.Tuesday]: [],
-    [Weekdays.Wednesday]: [],
-    [Weekdays.Thursday]: [],
-    [Weekdays.Friday]: [],
-    [Weekdays.Saturday]: [],
-    [Weekdays.Sunday]: [],
-  };
+export const selectUser = createSelector(
+  (state: RootState) => state.calendar.trainingList,
+  (trainingList) => {
+    const weekdaysList: { [key in Weekdays]: Array<Training> } = {
+      [Weekdays.Monday]: [],
+      [Weekdays.Tuesday]: [],
+      [Weekdays.Wednesday]: [],
+      [Weekdays.Thursday]: [],
+      [Weekdays.Friday]: [],
+      [Weekdays.Saturday]: [],
+      [Weekdays.Sunday]: [],
+    };
 
-  trainingList.map((training) => {
-    if (training.weekday in Weekdays) {
-      weekdaysList[training.weekday].push(training);
-    } else {
-      throw new Error(
-        `Invalid weekday!`
-      );
-    }
-  });
+    trainingList.forEach((training) => {
+      weekdaysList[training.weekday]?.push(training);
+    });
 
-  return weekdaysList;
-};
+    return weekdaysList;
+  }
+);
 
-export const {} = calendarStore.actions;
+export const { removeTraining } = calendarStore.actions;

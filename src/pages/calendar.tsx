@@ -1,17 +1,31 @@
 import { View } from "react-native";
-import { Card, Text } from "react-native-paper";
+import { Card, Text, useTheme } from "react-native-paper";
 import { Training, Weekdays } from "../types";
-import { useSelector } from "../store";
-import { selectUser } from "../store/calendar";
+import { dispatch, useSelector } from "../store";
+import { removeTraining, selectUser } from "../store/calendar";
+import Icon from "react-native-vector-icons/FontAwesome6";
 
 export default function Calendar() {
   const weekDays = useSelector(selectUser);
+  const theme = useTheme();
 
   const TrainingCard = ({ training }: { training: Training }) => {
     return (
       <Card>
-        <Card.Content>
+        <Card.Content
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <Text>{training.name}</Text>
+          <Icon
+            name="trash"
+            size={10}
+            color={theme.colors.error}
+            onPress={() => dispatch(removeTraining(training.id))}
+          />
         </Card.Content>
       </Card>
     );
