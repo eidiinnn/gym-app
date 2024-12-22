@@ -1,6 +1,8 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { v4 as uuidv4 } from "uuid";
 import { Training, Weekdays } from "../types";
 import { RootState } from ".";
+import "react-native-get-random-values";
 
 export const calendarStore = createSlice({
   name: "calendar",
@@ -17,6 +19,9 @@ export const calendarStore = createSlice({
         (training) => training.id === actions.payload
       );
       state.trainingList.splice(index, 1);
+    },
+    createTraining(state, actions: PayloadAction<Omit<Training, "id">>) {
+      state.trainingList.push({ id: uuidv4(), ...actions.payload });
     },
   },
 });
@@ -42,4 +47,4 @@ export const selectUser = createSelector(
   }
 );
 
-export const { removeTraining } = calendarStore.actions;
+export const { removeTraining, createTraining } = calendarStore.actions;

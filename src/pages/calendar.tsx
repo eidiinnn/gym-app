@@ -1,24 +1,28 @@
-import { View } from "react-native";
-import { Card, Text, useTheme } from "react-native-paper";
+import { StyleProp, View, ViewStyle } from "react-native";
+import { Card, IconButton, Text, useTheme } from "react-native-paper";
 import { Training, Weekdays } from "../types";
 import { dispatch, useSelector } from "../store";
 import { removeTraining, selectUser } from "../store/calendar";
 import Icon from "react-native-vector-icons/FontAwesome6";
+import { useState } from "react";
+import { ScrollView } from "react-native";
+import CreateTrainingModal from "../components/createTrainingModal";
 
 export default function Calendar() {
   const weekDays = useSelector(selectUser);
+  const [createModalVisible, setCreateModalVisible] = useState(false);
   const theme = useTheme();
 
   const TrainingCard = ({ training }: { training: Training }) => {
+    const cardStyle: StyleProp<ViewStyle> = {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    };
+
     return (
       <Card>
-        <Card.Content
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+        <Card.Content style={cardStyle}>
           <Text>{training.name}</Text>
           <Icon
             name="trash"
@@ -32,8 +36,11 @@ export default function Calendar() {
   };
 
   return (
-    <View>
-      <View style={{ display: "flex", gap: 5 }}>
+    <View style={{ position: "relative", flex: 1 }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ display: "flex", gap: 5 }}
+      >
         {Object.keys(weekDays).map((key) => {
           const dayTrainings = weekDays[key as Weekdays];
           const hasTrainingOnDay = dayTrainings.length > 0 ? true : false;
@@ -53,7 +60,25 @@ export default function Calendar() {
             </Card>
           );
         })}
-      </View>
+      </ScrollView>
+
+      <IconButton
+        icon="plus"
+        iconColor={theme.colors.onPrimary}
+        size={30}
+        style={{
+          position: "absolute",
+          bottom: 10,
+          right: 10,
+          backgroundColor: theme.colors.primary,
+        }}
+        onPress={() => setCreateModalVisible(true)}
+      />
+
+      <CreateTrainingModal
+        visible={createModalVisible}
+        onVisibleChange={(v) => setCreateModalVisible(v)}
+      />
     </View>
   );
 }
