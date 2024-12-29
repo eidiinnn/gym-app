@@ -2,9 +2,9 @@ import { StyleProp, View, ViewStyle } from "react-native";
 import { Card, IconButton, Text, useTheme } from "react-native-paper";
 import { Training, Weekdays } from "../types";
 import { dispatch, useSelector } from "../store";
-import { removeTraining, selectUser } from "../store/calendar";
+import { getTrainingList, removeTraining, selectUser } from "../store/calendar";
 import Icon from "react-native-vector-icons/FontAwesome6";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ScrollView } from "react-native";
 import CreateTrainingModal from "../components/createTrainingModal";
 
@@ -12,6 +12,11 @@ export default function Calendar() {
   const weekDays = useSelector(selectUser);
   const [createModalVisible, setCreateModalVisible] = useState(false);
   const theme = useTheme();
+
+  useEffect(() => {
+    dispatch(getTrainingList())
+  }, [])
+
 
   const TrainingCard = ({ training }: { training: Training }) => {
     const cardStyle: StyleProp<ViewStyle> = {

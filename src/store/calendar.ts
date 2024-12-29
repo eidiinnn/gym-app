@@ -1,17 +1,21 @@
-import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+  PayloadAction,
+} from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 import { Training, Weekdays } from "../types";
 import { RootState } from ".";
 import "react-native-get-random-values";
+import tables from "../db/tables";
 
 export const calendarStore = createSlice({
   name: "calendar",
   initialState: {
-    trainingList: [
-      { id: "1", name: "a", weekday: Weekdays.Monday },
-      { id: "2", name: "b", weekday: Weekdays.Wednesday },
-      { id: "3", name: "c", weekday: Weekdays.Friday },
-    ] as Array<Training>,
+    trainingList: [] as Array<Training>,
+    inBDProcess: false,
+    gettingTrainingList: false,
   },
   reducers: {
     removeTraining(state, actions: PayloadAction<string>) {
@@ -23,6 +27,43 @@ export const calendarStore = createSlice({
     createTraining(state, actions: PayloadAction<Omit<Training, "id">>) {
       state.trainingList.push({ id: uuidv4(), ...actions.payload });
     },
+  },
+  extraReducers(build) {
+    build.addCase(createTraining.pending, (state) => {
+      state.inBDProcess = true;
+    });
+    build.addCase(createTraining.rejected, (state) => {
+      state.inBDProcess = false;
+    });
+    build.addCase(createTraining.fulfilled, (state, actions) => {
+      state.inBDProcess = false;
+      state.trainingList.push(actions.payload);
+    });
+
+    build.addCase(getTrainingList.pending, (state) => {
+      state.gettingTrainingList = true;
+    });
+    build.addCase(getTrainingList.rejected, (state) => {
+      state.gettingTrainingList = false;
+    });
+    build.addCase(getTrainingList.fulfilled, (state, actions) => {
+      state.gettingTrainingList = false;
+      state.trainingList = actions.payload;
+    });
+
+    build.addCase(removeTraining.pending, (state) => {
+      state.inBDProcess = true;
+    });
+    build.addCase(removeTraining.rejected, (state) => {
+      state.inBDProcess = false;
+    });
+    build.addCase(removeTraining.fulfilled, (state, actions) => {
+      state.inBDProcess = false;
+      const index = state.trainingList.findIndex(
+        (training) => training.id === actions.payload
+      );
+      state.trainingList.splice(index, 1);
+    });
   },
 });
 
@@ -47,4 +88,43 @@ export const selectUser = createSelector(
   }
 );
 
-export const { removeTraining, createTraining } = calendarStore.actions;
+export const getTrainingList = createAsyncThunk(
+  "calendar/getTrainingList",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await tables.trainingCalendar.findAll();
+    } catch (error) {
+      return rejectWithValue("Error to get the training list");
+    }
+  }
+);
+
+export const removeTraining = createAsyncThunk(
+  "calendar/deleteTraining",
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await tables.trainingCalendar.delete(id);
+      return id;
+    } catch (error) {
+      return rejectWithValue("Error to get the training list");
+    }
+  }
+);
+
+export const createTraining = createAsyncThunk(
+  "calendar/createTraining",
+  async (training: Omit<Training, "id">, { rejectWithValue }) => {
+    try {
+      const trainingWithId = { id: uuidv4(), ...training };
+      await tables.trainingCalendar.insert(trainingWithId);
+      return trainingWithId;
+    } catch (error) {
+      return rejectWithValue("Error to insert the training");
+    }
+  }
+);
+
+export const {
+  /*removeTraining*/
+  /*createTraining*/
+} = calendarStore.actions;
