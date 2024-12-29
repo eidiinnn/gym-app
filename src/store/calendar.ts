@@ -4,10 +4,8 @@ import {
   createSlice,
   PayloadAction,
 } from "@reduxjs/toolkit";
-import { v4 as uuidv4 } from "uuid";
 import { Training, Weekdays } from "../types";
 import { RootState } from ".";
-import "react-native-get-random-values";
 import tables from "../db/tables";
 
 export const calendarStore = createSlice({
@@ -23,9 +21,6 @@ export const calendarStore = createSlice({
         (training) => training.id === actions.payload
       );
       state.trainingList.splice(index, 1);
-    },
-    createTraining(state, actions: PayloadAction<Omit<Training, "id">>) {
-      state.trainingList.push({ id: uuidv4(), ...actions.payload });
     },
   },
   extraReducers(build) {
@@ -115,16 +110,10 @@ export const createTraining = createAsyncThunk(
   "calendar/createTraining",
   async (training: Omit<Training, "id">, { rejectWithValue }) => {
     try {
-      const trainingWithId = { id: uuidv4(), ...training };
-      await tables.trainingCalendar.insert(trainingWithId);
-      return trainingWithId;
+      const p = await tables.trainingCalendar.insert(training);
+      return p;
     } catch (error) {
       return rejectWithValue("Error to insert the training");
     }
   }
 );
-
-export const {
-  /*removeTraining*/
-  /*createTraining*/
-} = calendarStore.actions;

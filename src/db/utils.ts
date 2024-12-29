@@ -1,3 +1,6 @@
+import { v4 as uuidv4 } from "uuid";
+import "react-native-get-random-values";
+
 export abstract class Database {
   constructor() {}
 
@@ -25,8 +28,10 @@ export class Table<T extends Object> {
     return (await this.db.findOne(this.table, id)) as T;
   }
 
-  insert(data: T): Promise<void> {
-    return this.db.insert(this.table, data);
+  async insert(data: Omit<T, "id">): Promise<T> {
+    const dataWithId = { id: uuidv4(), ...data } as unknown as T;
+    await this.db.insert(this.table, dataWithId);
+    return dataWithId;
   }
 
   update(data: unknown): Promise<void> {
