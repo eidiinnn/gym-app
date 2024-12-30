@@ -19,8 +19,8 @@ export default function TodayTraining() {
   return (
     <View style={{flexDirection: "column", gap: 5}}>
       <Text variant="titleMedium">Today Training</Text>
-      {todayTraining.map((training) => (
-        <Card>
+      {todayTraining.map((training, index) => (
+        <Card key={index}>
           <Card.Content>
             <Text>{training.name}</Text>
           </Card.Content>

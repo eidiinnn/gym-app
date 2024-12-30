@@ -1,10 +1,12 @@
-import * as React from "react";
+import { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Home from "../pages/home";
 import Icon from "react-native-vector-icons/FontAwesome6";
 import { useTheme } from "react-native-paper";
 import Measurement from "../pages/measurement";
 import Calendar from "../pages/calendar";
+import { dispatch } from "../store";
+import { getTrainingList } from "../store/calendar";
 
 const TabRouter = createBottomTabNavigator({
   screens: {
@@ -18,13 +20,17 @@ export default function Router() {
   const theme = useTheme();
   const iconSize = 25;
 
+  useEffect(() => {
+    dispatch(getTrainingList());
+  }, []);
+
   return (
     <TabRouter.Navigator
       screenOptions={{
         headerShown: false,
         headerTintColor: theme.colors.background,
         tabBarActiveTintColor: theme.colors.primary,
-        sceneStyle: {padding: 8}
+        sceneStyle: { padding: 8 },
       }}
     >
       <TabRouter.Screen
